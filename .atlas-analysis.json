@@ -1,0 +1,76 @@
+{
+  "projectType": "frontend",
+  "projectName": "Posture!Posture!Posture!",
+  "projectDescription": "A Chrome/Firefox extension that tracks your posture in real-time using webcam and TensorFlow.js MoveNet, applying visual feedback to help maintain healthy sitting positions.",
+  "theme": "palm",
+  "primaryColor": "#22c55e",
+  "lightColor": "#86efac",
+  "darkColor": "#16a34a",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Get Started",
+        "pages": [
+          "introduction",
+          "installation",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "User Guide",
+        "pages": [
+          "guide/how-it-works",
+          "guide/setup-camera",
+          "guide/tracking-posture",
+          "guide/customization"
+        ]
+      },
+      {
+        "group": "Development",
+        "pages": [
+          "development/building-from-source",
+          "development/project-structure",
+          "development/contributing"
+        ]
+      },
+      {
+        "group": "Technical Reference",
+        "pages": [
+          "reference/architecture",
+          "reference/pose-detection",
+          "reference/components",
+          "reference/messaging"
+        ]
+      },
+      {
+        "group": "Resources",
+        "pages": [
+          "resources/faq",
+          "resources/privacy",
+          "resources/troubleshooting"
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Real-time posture tracking using TensorFlow.js MoveNet Lightning model",
+    "Visual blur effect feedback when posture deteriorates",
+    "Customizable baseline 'good posture' position",
+    "Multi-camera support with device selection",
+    "Privacy-focused with no data collection or external tracking",
+    "Browser action controls for quick posture reset and tracking toggle"
+  ],
+  "publicApiSurface": [
+    "Options component - Main camera interface with pose detection",
+    "Popup component - Browser action popup for quick controls",
+    "Content component - Content script that applies blur effects",
+    "Background script - Message relay between options and content scripts",
+    "loadMoveNet() - Loads the MoveNet pose detection model",
+    "detect() - Performs pose detection on video frames",
+    "handlePose() - Processes detected poses and determines posture status",
+    "drawCanvas() - Renders pose keypoints and skeleton on canvas",
+    "drawKeypoints() - Draws individual pose keypoints",
+    "drawSkeleton() - Draws pose skeleton connections",
+    "drawGoodPostureHeight() - Visualizes baseline posture position"
+  ]
+}
