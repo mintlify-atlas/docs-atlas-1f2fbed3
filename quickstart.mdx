@@ -1,80 +1,211 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: Quick Start
+description: Get started with Posture!Posture!Posture! and set up your first posture tracking session
 ---
 
-## Get started in three steps
+# Quick Start
 
-Get your documentation site running locally and make your first customization.
+Get Posture!Posture!Posture! up and running in minutes. This guide will walk you through your first posture tracking session.
 
-### Step 1: Set up your local environment
-
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 2: Deploy your changes
-
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
-
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
-
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
-
-### Step 3: Go live
-
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
-
-## Next steps
-
-Now that you have your docs running, explore these key features:
-
-<CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
-</CardGroup>
+## Prerequisites
 
 <Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
+Make sure you've [installed the extension](/installation) before proceeding.
 </Note>
+
+You'll also need:
+- A working webcam
+- Good lighting for optimal pose detection
+- A comfortable sitting position with good posture
+
+## Initial Setup
+
+<Steps>
+  <Step title="Open the extension popup">
+    Click the Posture!Posture!Posture! icon in your browser toolbar to open the popup menu.
+    
+    <Note>
+    If you don't see the icon, click the extensions menu (puzzle piece icon) and pin Posture!Posture!Posture!
+    </Note>
+  </Step>
+  
+  <Step title="Launch the Options window">
+    Click the "Open Popup" button in the extension menu. This will open a new window where you can see your webcam feed and tracking visualization.
+    
+    The Options window is where the AI model runs and performs pose detection.
+  </Step>
+  
+  <Step title="Grant camera permission">
+    When prompted, click "Allow" to grant the extension access to your webcam.
+    
+    <Warning>
+    The extension cannot function without camera access. Your webcam feed is processed locally and never transmitted.
+    </Warning>
+  </Step>
+  
+  <Step title="Select your camera">
+    If you have multiple cameras connected, use the dropdown menu to select the camera you want to use (typically your built-in webcam or external USB camera).
+  </Step>
+</Steps>
+
+## Start Tracking
+
+<Steps>
+  <Step title="Position yourself with good posture">
+    Before starting tracking, sit up straight in your chair with proper posture:
+    - Back straight against the chair
+    - Shoulders relaxed and back
+    - Eyes level with the top third of your monitor
+    - Feet flat on the floor
+    
+    This position will be your baseline "good posture" position.
+  </Step>
+  
+  <Step title="Start the camera">
+    Click the "Start" button in the Options window. The webcam feed will appear along with real-time pose detection visualization.
+    
+    You'll see:
+    - Your live webcam feed
+    - Skeletal tracking overlay showing detected keypoints
+    - A green line indicating your baseline good posture height
+  </Step>
+  
+  <Step title="Wait for model initialization">
+    The TensorFlow.js MoveNet model will load and begin tracking. This takes a few seconds on first launch.
+    
+    Once tracking starts, the extension will automatically capture your current eye position as the baseline for good posture.
+  </Step>
+  
+  <Step title="Keep the Options window open">
+    <Warning>
+    The Options window must remain open (though it can be minimized) for tracking to work. The pose detection model runs in this window.
+    </Warning>
+    
+    The browser badge will show "ON" to indicate tracking is active.
+  </Step>
+</Steps>
+
+## Test Your Setup
+
+Now that tracking is active, let's verify everything is working:
+
+<Steps>
+  <Step title="Browse normally">
+    Open a new tab and browse to any website. While maintaining your good posture, pages should appear normal without any blur effect.
+  </Step>
+  
+  <Step title="Slouch intentionally">
+    Now slouch or lean forward significantly. Within 1-2 seconds, you should notice:
+    - Web pages become blurred
+    - A "Sit Up Straight!" message appears at the top of the page
+  </Step>
+  
+  <Step title="Return to good posture">
+    Sit back up to your original good posture position. The blur effect should disappear immediately, allowing you to browse normally again.
+  </Step>
+</Steps>
+
+<Note>
+The extension detects posture changes every 100ms and compares your current eye position to your baseline. If you deviate by more than 25 pixels, the blur effect is applied.
+</Note>
+
+## Using the Extension
+
+### Reset Your Posture Baseline
+
+If you need to adjust your seating position or want to set a new "good posture" baseline:
+
+**Option 1: From the Options window**
+- Click the "Reset Posture" button while tracking is active
+- Sit in your new desired good posture position
+- The extension will automatically capture the new baseline
+
+**Option 2: From the popup menu**
+- Click the extension icon in your toolbar
+- Click "Reset Posture"
+- Sit in your new desired position
+
+### Stop and Start Tracking
+
+You can toggle tracking on and off at any time:
+
+- **From the Options window**: Click the "Stop" button (or "Start" to resume)
+- **From the popup menu**: Click "Stop" or "Start"
+
+When tracking is off, the badge will show "OFF" and no blur effect will be applied.
+
+### Switch Cameras
+
+To change which camera is used:
+
+1. In the Options window, use the camera dropdown menu
+2. Select your preferred camera
+3. Tracking will restart automatically with the new camera
+
+## Tips for Best Results
+
+<CardGroup cols={2}>
+  <Card title="Proper Lighting" icon="lightbulb">
+    Ensure your face is well-lit for optimal pose detection. Natural light or a desk lamp works best.
+  </Card>
+  
+  <Card title="Keep Window Open" icon="window-maximize">
+    The Options window must stay open (can be minimized to taskbar) for tracking to work.
+  </Card>
+  
+  <Card title="Stable Position" icon="chair">
+    Set your baseline in a comfortable position you can maintain throughout your browsing session.
+  </Card>
+  
+  <Card title="Adjust Sensitivity" icon="sliders">
+    The deviation threshold is set to 25 pixels by default. This provides good balance between sensitivity and false positives.
+  </Card>
+</CardGroup>
+
+## Common Issues
+
+### The blur effect isn't appearing
+
+1. Verify the Options window is open and tracking is started (badge shows "ON")
+2. Check that the green baseline line is visible in the Options window
+3. Try slouching more dramatically to trigger the effect
+4. Ensure your face is visible and well-lit in the webcam feed
+
+### Tracking keeps stopping
+
+- The Options window may have been closed. Keep it open (minimized is fine)
+- Check that camera permissions are still granted
+- Verify good lighting conditions for pose detection
+
+### The blur is too sensitive or not sensitive enough
+
+The default sensitivity (25 pixel deviation) works for most users, but you may need to adjust based on:
+- Your distance from the webcam
+- Your monitor size and position
+- How much you naturally move while working
+
+<Note>
+Future updates may include user-adjustable sensitivity controls.
+</Note>
+
+### Camera not detected
+
+1. Ensure your webcam is connected and functioning
+2. Check that no other application is using the camera
+3. Verify camera permissions in browser settings
+4. Try selecting a different camera from the dropdown
+
+## Next Steps
+
+You're now ready to maintain good posture while browsing! The extension will continue to monitor your position and provide visual feedback.
+
+<Card title="Back to Introduction" icon="house" href="/introduction">
+  Learn more about how the extension works and its privacy features
+</Card>
+
+## Support & Feedback
+
+If you encounter issues or have suggestions:
+
+- Report issues on [GitHub](https://github.com/killa-kyle/posture-posture-posture-chrome-extension)
+- Leave a review on the [Chrome Web Store](https://chrome.google.com/webstore/detail/posturepostureposture/ekleaenhplpaiincbdkbebmeccfgmbll) or [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/posture-posture-posture/)

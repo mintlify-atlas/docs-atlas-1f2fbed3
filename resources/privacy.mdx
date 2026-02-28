@@ -1,0 +1,154 @@
+---
+title: Privacy Policy
+description: How Posture!Posture!Posture! handles your data and protects your privacy
+---
+
+# Privacy Policy
+
+Your privacy is paramount. This page explains exactly what data the extension accesses, how it's used, and what never leaves your device.
+
+## No Data Collection
+
+<Note>
+**Zero tracking, zero analytics, zero data collection.** The extension does not include any analytics libraries or tracking mechanisms. None of your data is monitored, stored, or transmitted anywhere.
+</Note>
+
+The developer has no visibility into:
+- Your camera feed or captured images
+- Your browsing history or activity
+- Your posture data or tracking information
+- Any personal information whatsoever
+
+The only insight available is standard Chrome Web Store/Firefox Addon Marketplace statistics visible in the Developer Dashboard, which includes:
+- Number of installs and uninstalls
+- Number of active users (aggregated, anonymous counts)
+
+## Camera Access
+
+### Why Camera Access is Required
+
+The extension needs access to your webcam to perform real-time posture tracking. Specifically, it:
+
+1. Captures video frames from your selected webcam
+2. Processes frames locally using TensorFlow.js MoveNet model
+3. Detects keypoints on your body, focusing on eye position
+4. Compares current position against your baseline "good posture"
+5. Triggers the blur effect when deviation is detected
+
+### How Camera Data is Handled
+
+<Warning>
+**All camera processing happens entirely within your browser.** No images, video frames, or camera data ever leave your device.
+</Warning>
+
+Technical details:
+- Video frames are processed in-memory using the `react-webcam` library
+- The TensorFlow.js model runs locally using WebGL acceleration
+- Only keypoint coordinates (numeric values) are extracted from frames
+- No video or images are saved, stored, or transmitted
+- Camera access stops immediately when you stop tracking
+
+### Camera Permissions
+
+On first use, your browser will prompt you to allow camera access. You can:
+- Grant access to enable posture tracking
+- Deny access (the extension won't function)
+- Revoke access at any time through browser settings
+
+To manage camera permissions:
+- **Chrome**: Settings > Privacy and security > Site settings > Camera
+- **Firefox**: Settings > Privacy & Security > Permissions > Camera
+
+## Required Browser Permissions
+
+The extension requests the following permissions in its manifest:
+
+### Access Your Data on All Websites
+
+**Permission**: `"matches": ["http://*/*", "https://*/*"]`
+
+**Why it's needed**: The extension needs to inject a content script that can apply the blur effect to web pages when you're not sitting with good posture. Without this permission, the visual feedback mechanism wouldn't work.
+
+**What it does NOT do**:
+- Does not read or collect page content
+- Does not monitor your browsing activity
+- Does not track which sites you visit
+- Only injects CSS to apply/remove blur effect
+
+### Background Service Worker
+
+**Permission**: Background script execution
+
+**Why it's needed**: The extension uses a background service worker to relay messages between the Options page (where tracking happens) and content scripts (where blur is applied). This enables real-time communication.
+
+**What it does NOT do**:
+- Does not run continuously (only when needed)
+- Does not collect or store any data
+- Only passes posture status messages ("good" or "bad")
+
+## Data Storage
+
+The extension stores minimal data locally in your browser:
+
+### What's Stored Locally
+
+- **Tracking state**: Whether tracking is currently ON or OFF
+- **Baseline position**: Your "good posture" eye position (numeric value)
+- **Selected camera**: Device ID of your chosen webcam
+
+This data is stored using browser storage APIs and never leaves your device.
+
+### What's NOT Stored
+
+- Camera images or video
+- Browsing history
+- Posture tracking history
+- Timestamps or usage patterns
+- Any personally identifiable information
+
+## Third-Party Services
+
+<Note>
+The extension does not communicate with any third-party services or external servers.
+</Note>
+
+The only external resources are:
+- **TensorFlow.js models**: Downloaded from TensorFlow's CDN when the extension initializes (standard model files, no user data transmitted)
+
+No analytics services, no tracking pixels, no external API calls with your data.
+
+## Open Source Transparency
+
+Posture!Posture!Posture! is fully open source. You can:
+- Review the complete source code on [GitHub](https://github.com/killa-kyle/posture-posture-posture-chrome-extension)
+- Verify there's no data collection or tracking
+- Build the extension yourself from source
+- Contribute improvements or report issues
+
+## Browser Vendor Data
+
+When you install the extension from official stores:
+
+- **Chrome Web Store**: Google may collect installation and usage statistics according to their own privacy policies
+- **Firefox Addon Marketplace**: Mozilla may collect installation and usage statistics according to their own privacy policies
+
+This data collection is handled by the browser vendors, not by the extension itself. Refer to [Google's Privacy Policy](https://policies.google.com/privacy) and [Mozilla's Privacy Policy](https://www.mozilla.org/privacy/) for details.
+
+## Your Rights
+
+You have complete control:
+- **Revoke permissions**: Disable camera or site access at any time through browser settings
+- **Uninstall**: Remove the extension completely to stop all functionality
+- **Inspect code**: Review the open source code to verify privacy claims
+- **Local control**: All data stays on your device and is deleted when you uninstall
+
+## Questions or Concerns
+
+If you have privacy questions or concerns:
+1. Review the [open source code](https://github.com/killa-kyle/posture-posture-posture-chrome-extension)
+2. Open an issue on GitHub for specific questions
+3. The developer has no access to your data, so there's nothing to request or delete
+
+## Updates to This Policy
+
+This privacy policy may be updated to reflect changes in the extension. Any updates will be posted in the documentation. Since no data is collected, changes won't affect your privacy - this is simply for transparency about how the extension operates.

@@ -1,0 +1,323 @@
+---
+title: Troubleshooting
+description: Solutions to common issues with Posture!Posture!Posture!
+---
+
+# Troubleshooting
+
+Having issues with the extension? Find solutions to common problems below.
+
+## Camera Issues
+
+### Camera Permission Denied
+
+**Problem**: The camera won't start or shows a permission error.
+
+**Solutions**:
+
+1. **Check browser permissions**
+   - **Chrome**: Go to `chrome://settings/content/camera` and ensure the extension is allowed
+   - **Firefox**: Go to `about:preferences#privacy`, scroll to Permissions > Camera, and check settings
+
+2. **Grant permission when prompted**
+   - When you first click "Start" in the Options page, your browser will prompt for camera access
+   - Click "Allow" to enable posture tracking
+
+3. **Check if another application is using the camera**
+   - Close other apps that might be using your webcam (Zoom, Skype, etc.)
+   - Some operating systems only allow one application to access the camera at a time
+
+4. **Reload the Options page**
+   - Close and reopen the Options page
+   - Try starting the camera again
+
+<Note>
+On first use, you must allow camera access for the extension to function. The extension cannot track your posture without webcam access.
+</Note>
+
+### Camera Shows Black Screen
+
+**Problem**: The camera starts but only shows a black screen.
+
+**Solutions**:
+
+1. **Check camera connection**
+   - Ensure your webcam is properly connected
+   - Try unplugging and reconnecting external webcams
+
+2. **Test camera in other applications**
+   - Open your camera in another app to verify it's working
+   - If it doesn't work elsewhere, it's a hardware/driver issue
+
+3. **Try a different camera**
+   - If you have multiple webcams, use the dropdown menu in the Options page to switch cameras
+   - Select a different device from the list
+
+4. **Update camera drivers**
+   - Ensure your webcam drivers are up to date
+   - Check your computer manufacturer's website for driver updates
+
+### Wrong Camera Selected
+
+**Problem**: The extension is using the wrong webcam.
+
+**Solution**:
+- Open the Options page
+- Look for the camera selection dropdown at the bottom of the options panel
+- Select your preferred camera from the list
+- The extension will automatically switch to the selected device
+
+<Note>
+The extension remembers your camera selection, so you only need to set this once.
+</Note>
+
+## Tracking Issues
+
+### Tracking Not Starting
+
+**Problem**: You clicked "Start" but tracking doesn't begin.
+
+**Solutions**:
+
+1. **Wait for model to load**
+   - The TensorFlow.js MoveNet model needs to download and initialize on first use
+   - This can take 10-30 seconds depending on your connection
+   - Wait until you see the canvas overlay with skeleton tracking
+
+2. **Ensure Options page is active**
+   - The Options window must be visible/active at least once for tracking to initialize
+   - After initialization, you can minimize it
+
+3. **Check browser badge**
+   - The extension icon should show an "ON" badge when tracking is active
+   - If it shows "OFF", tracking has not started
+
+4. **Check browser console for errors**
+   - Right-click on the Options page and select "Inspect"
+   - Look for errors in the Console tab
+   - Common errors include WebGL issues or model loading failures
+
+### Model Loading Failures
+
+**Problem**: The pose detection model fails to load.
+
+**Solutions**:
+
+1. **Check internet connection**
+   - The TensorFlow.js model downloads from CDN on first use
+   - Ensure you have an active internet connection
+   - The model is cached after first download
+
+2. **Clear browser cache and reload**
+   - Sometimes cached model files become corrupted
+   - Clear your browser cache and reload the extension
+   - **Chrome**: Settings > Privacy and security > Clear browsing data
+   - **Firefox**: Settings > Privacy & Security > Cookies and Site Data > Clear Data
+
+3. **Check if WebGL is enabled**
+   - The extension uses WebGL for accelerated model inference
+   - Test WebGL: Visit [https://get.webgl.org/](https://get.webgl.org/)
+   - If WebGL is disabled, enable it in your browser settings
+
+4. **Disable hardware acceleration temporarily**
+   - Paradoxically, sometimes disabling hardware acceleration helps
+   - **Chrome**: Settings > System > Use hardware acceleration when available
+   - **Firefox**: Settings > General > Performance > Use hardware acceleration when available
+   - Try toggling this setting
+
+<Warning>
+The extension requires WebGL support for TensorFlow.js to function. If WebGL is unavailable on your system, posture tracking will not work.
+</Warning>
+
+### Tracking Not Detecting Posture Changes
+
+**Problem**: The blur effect doesn't activate when you slouch.
+
+**Solutions**:
+
+1. **Ensure good lighting**
+   - The pose detection model needs clear visibility of your face and upper body
+   - Add more light to your workspace
+   - Avoid backlighting (sitting in front of a bright window)
+
+2. **Position yourself in frame**
+   - Make sure your face and upper body are visible in the camera view
+   - The model specifically tracks your right eye position
+   - Sit at a comfortable distance (2-4 feet from camera)
+
+3. **Reset your baseline**
+   - Your baseline might have been set incorrectly
+   - Sit with good posture
+   - Click "Reset Posture" in the Options page
+   - The next detected position will be your new baseline
+
+4. **Check the canvas overlay**
+   - The Options page shows a canvas with keypoints and skeleton
+   - Verify that keypoints are being detected (you should see dots on your body)
+   - If no keypoints appear, the model isn't detecting your pose
+
+### Blur Effect Stuck On
+
+**Problem**: The blur effect won't go away even when sitting up straight.
+
+**Solutions**:
+
+1. **Reset your posture baseline**
+   - Click "Reset Posture" in the Options page or browser action menu
+   - Sit with good posture and let the extension recalibrate
+
+2. **Stop and restart tracking**
+   - Click "Stop" in the Options page
+   - Wait a few seconds
+   - Click "Start" again
+   - Reset your baseline after restarting
+
+3. **Check if extension is responding**
+   - Open the Options page
+   - Verify that the canvas overlay is updating in real-time
+   - If frozen, reload the Options page
+
+## Browser-Specific Issues
+
+### Chrome: Extension Not Loading
+
+**Problem**: The extension doesn't appear or work in Chrome.
+
+**Solutions**:
+
+1. **Check extension is enabled**
+   - Go to `chrome://extensions/`
+   - Find "Posture!Posture!Posture!"
+   - Ensure the toggle is ON (blue)
+
+2. **Reload the extension**
+   - Go to `chrome://extensions/`
+   - Click the reload icon on the extension card
+
+3. **Reinstall from Chrome Web Store**
+   - Remove the extension
+   - Reinstall from the [Chrome Web Store](https://chrome.google.com/webstore/detail/posturepostureposture/ekleaenhplpaiincbdkbebmeccfgmbll)
+
+### Firefox: Extension Not Loading
+
+**Problem**: The extension doesn't appear or work in Firefox.
+
+**Solutions**:
+
+1. **Check extension is enabled**
+   - Go to `about:addons`
+   - Find "Posture!Posture!Posture!"
+   - Ensure it's enabled
+
+2. **Restart Firefox**
+   - Completely close and reopen Firefox
+   - Sometimes extensions need a fresh browser session
+
+3. **Reinstall from Firefox Addon Marketplace**
+   - Remove the extension
+   - Reinstall from the [Firefox Addon Marketplace](https://addons.mozilla.org/en-US/firefox/addon/posture-posture-posture/)
+
+## Developer Mode Installation Issues
+
+<Note>
+These issues apply if you're installing from source code rather than the official stores.
+</Note>
+
+### Build Fails
+
+**Problem**: `npm start` or `npm run build` fails.
+
+**Solutions**:
+
+1. **Check Node.js version**
+   - The extension requires Node.js >= 20.0.0
+   - Check your version: `node --version`
+   - Update Node.js if needed from [nodejs.org](https://nodejs.org/)
+
+2. **Clean install dependencies**
+   ```bash
+   rm -rf node_modules package-lock.json
+   npm install
+   ```
+
+3. **Check for missing dependencies**
+   - Ensure all dependencies in `package.json` are installed
+   - Run `npm install` again
+
+### Extension Won't Load in Developer Mode
+
+**Problem**: Chrome/Firefox won't load the unpacked extension.
+
+**Solutions**:
+
+1. **Build the extension first**
+   - Run `npm install`
+   - Run `npm start` or `npm run build`
+   - Load the `build` folder, not the source folder
+
+2. **Check manifest errors**
+   - Look for errors when loading unpacked extension
+   - The manifest.json must be valid JSON
+
+3. **Ensure build folder exists**
+   - Verify the `build` folder was created
+   - It should contain manifest.json and bundled files
+
+## Performance Issues
+
+### High CPU Usage
+
+**Problem**: The extension causes high CPU usage.
+
+**Why this happens**: The extension runs pose detection every 100ms, which requires continuous video processing and machine learning inference.
+
+**Solutions**:
+
+1. **Stop tracking when not needed**
+   - Click "Stop" in the Options page when you're done working
+   - The badge will show "OFF"
+
+2. **Close the Options page**
+   - While tracking continues, closing the Options page reduces rendering overhead
+   - The canvas overlay isn't needed for tracking to work
+
+3. **Enable hardware acceleration**
+   - Ensure WebGL hardware acceleration is enabled
+   - This offloads processing to your GPU
+
+### Browser Lag or Stuttering
+
+**Problem**: The browser becomes slow or unresponsive.
+
+**Solutions**:
+
+1. **Close unnecessary tabs**
+   - Reduce overall browser memory usage
+   - The extension adds to existing resource usage
+
+2. **Restart the browser**
+   - Sometimes memory leaks accumulate
+   - A fresh start can help
+
+3. **Check system resources**
+   - Open Task Manager (Windows) or Activity Monitor (Mac)
+   - Verify your system isn't resource-constrained
+   - Close other resource-heavy applications
+
+## Still Having Issues?
+
+If you've tried these solutions and still experience problems:
+
+1. **Check the GitHub repository**
+   - Visit [github.com/killa-kyle/posture-posture-posture-chrome-extension](https://github.com/killa-kyle/posture-posture-posture-chrome-extension)
+   - Search existing issues to see if others have reported similar problems
+
+2. **Open a new issue**
+   - Create a detailed bug report on GitHub
+   - Include: browser version, extension version, steps to reproduce, error messages
+   - The developer and community can help troubleshoot
+
+3. **Review the source code**
+   - The extension is open source
+   - You can inspect the code to understand how it works
+   - Advanced users can debug or modify the extension locally

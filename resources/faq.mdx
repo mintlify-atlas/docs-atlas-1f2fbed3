@@ -1,0 +1,78 @@
+---
+title: Frequently Asked Questions
+description: Common questions about Posture!Posture!Posture! and how it works
+---
+
+# Frequently Asked Questions
+
+Find answers to commonly asked questions about the Posture!Posture!Posture! extension.
+
+<Accordion title="Why does the extension need camera access?">
+The extension uses your webcam to track your posture in real-time using TensorFlow.js and the MoveNet pose detection model. The camera captures your position and specifically tracks your eye height to determine if you're slouching. When you deviate from your "good posture" baseline, the extension applies a blur effect to your browser to remind you to sit up straight.
+
+Important: All camera processing happens locally in your browser. No images or video are ever transmitted or stored anywhere.
+</Accordion>
+
+<Accordion title="How accurate is the posture tracking?">
+The extension uses TensorFlow.js MoveNet (SINGLEPOSE_LIGHTNING model) for pose detection, which runs at a detection rate of 100ms intervals. The tracking focuses on your right eye position as the primary indicator of posture.
+
+The default deviation threshold is 25 pixels from your baseline position. When your eye position moves more than this threshold vertically, the extension considers it "bad posture" and applies the blur effect.
+</Accordion>
+
+<Accordion title="Which browsers are supported?">
+Posture!Posture!Posture! is available for:
+- **Chrome**: Install from the [Chrome Web Store](https://chrome.google.com/webstore/detail/posturepostureposture/ekleaenhplpaiincbdkbebmeccfgmbll)
+- **Firefox**: Install from the [Firefox Addon Marketplace](https://addons.mozilla.org/en-US/firefox/addon/posture-posture-posture/)
+
+Both versions use the same core tracking technology and features.
+</Accordion>
+
+<Accordion title="How do I set my baseline 'good posture' position?">
+When you first start the camera, the extension automatically captures your current position as the baseline "good posture." To ensure accurate tracking:
+
+1. Sit up straight with proper posture
+2. Open the Options page and start the camera
+3. The first position detected will be set as your baseline
+
+You can reset your baseline at any time using the "Reset Posture" button in the Options page or through the browser action menu.
+</Accordion>
+
+<Accordion title="Can I use multiple cameras?">
+Yes! The extension supports multiple webcams. In the Options page, you'll find a dropdown menu that lists all available video input devices. You can switch between cameras at any time, and the extension will smoothly transition to the selected device.
+</Accordion>
+
+<Accordion title="Does the extension work when the Options page is closed?">
+Yes, but with an important caveat: You need to make the Options window visible/active at least once for the tracking to initialize correctly. After that, the extension will continue monitoring your posture even if the Options page is minimized or in a background tab.
+
+The browser action badge will show "ON" when tracking is active and "OFF" when stopped.
+</Accordion>
+
+<Accordion title="What happens when I slouch?">
+When the extension detects that you've moved away from your good posture position (by default, more than 25 pixels), it applies a blur effect to all web pages you're viewing. As soon as you sit back up and return to your good posture position, the blur effect is immediately removed.
+
+This visual feedback helps create awareness of your posture without being overly intrusive.
+</Accordion>
+
+<Accordion title="Can I adjust the sensitivity?">
+The posture deviation threshold is currently set to 25 pixels. While the code includes infrastructure for adjusting this value (GOOD_POSTURE_DEVIATION), this feature is in development. Check back for future updates that will allow you to customize the sensitivity based on your preferences.
+</Accordion>
+
+<Accordion title="Why does the extension need 'view all pages' permission?">
+The extension requires permission to access all web pages so it can apply the blur effect across your entire browsing experience. Without this permission, the extension would only work on specific pages.
+
+See our [Privacy Policy](/resources/privacy) for more information about how we handle permissions responsibly.
+</Accordion>
+
+<Accordion title="What technology powers the posture tracking?">
+The extension uses:
+- **TensorFlow.js**: Machine learning framework that runs in the browser
+- **MoveNet**: Google's pose detection model optimized for real-time performance
+- **React Webcam**: For camera access and video streaming
+- **WebGL Backend**: For accelerated model inference
+
+All processing happens locally in your browser using these client-side technologies.
+</Accordion>
+
+<Accordion title="Is there a mobile version?">
+No, Posture!Posture!Posture! is currently only available as a browser extension for Chrome and Firefox on desktop computers. Mobile browsers don't support browser extensions in the same way, and posture tracking is most relevant for desktop work environments.
+</Accordion>

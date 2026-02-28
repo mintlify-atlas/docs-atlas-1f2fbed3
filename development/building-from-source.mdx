@@ -1,0 +1,159 @@
+---
+title: Building from Source
+description: Learn how to set up your development environment and build the Posture!Posture!Posture! extension from source
+---
+
+This guide walks you through setting up the development environment and building the Posture!Posture!Posture! extension from source code.
+
+## Prerequisites
+
+<Note>
+Make sure you have Node.js version 20 or higher installed on your system.
+</Note>
+
+You can verify your Node.js version by running:
+
+```bash
+node --version
+```
+
+If you need to install or update Node.js, visit [nodejs.org](https://nodejs.org/).
+
+## Installation Steps
+
+<Steps>
+  <Step title="Clone the repository">
+    Clone the source repository to your local machine:
+    
+    ```bash
+    git clone https://github.com/killa-kyle/posture-posture-posture-chrome-extension.git
+    cd posture-posture-posture-chrome-extension
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    Install all required npm packages:
+    
+    ```bash
+    npm install
+    ```
+    
+    This will install all dependencies including:
+    - React 17
+    - TensorFlow.js with MoveNet pose detection
+    - Webpack 5 and build tools
+    - TypeScript and Babel
+  </Step>
+
+  <Step title="Start development server">
+    Run the development server with hot reload:
+    
+    ```bash
+    npm start
+    ```
+    
+    This command starts the Webpack Dev Server and watches for file changes.
+  </Step>
+
+  <Step title="Load the extension in your browser">
+    ### For Chrome:
+    
+    1. Navigate to `chrome://extensions/`
+    2. Enable **Developer mode** in the top right corner
+    3. Click **Load unpacked**
+    4. Select the `build` folder from the project directory
+    
+    ### For Firefox:
+    
+    1. Navigate to `about:debugging#/runtime/this-firefox`
+    2. Click **Load Temporary Add-on**
+    3. Select the `manifest.json` file from the `build` folder
+  </Step>
+</Steps>
+
+## Build Commands
+
+The project includes several npm scripts for different build tasks:
+
+<CodeGroup>
+
+```bash Development
+npm start
+```
+
+```bash Production
+npm run build
+```
+
+```bash Format Code
+npm run prettier
+```
+
+</CodeGroup>
+
+### Command Details
+
+- **`npm start`** - Starts the Webpack development server with hot module replacement. The build output goes to the `build/` directory.
+- **`npm run build`** - Creates an optimized production build with minification and source maps disabled.
+- **`npm run prettier`** - Formats all JavaScript, TypeScript, JSON, CSS, SCSS, and Markdown files using Prettier.
+
+## Build Configuration
+
+The extension uses Webpack 5 for bundling with the following key features:
+
+- **Entry Points**: Four separate bundles are created:
+  - `options.bundle.js` - Options page UI
+  - `popup.bundle.js` - Browser action popup
+  - `background.bundle.js` - Service worker
+  - `contentScript.bundle.js` - Content script injected into web pages
+
+- **Hot Module Replacement**: Enabled for the Options and Popup pages during development (disabled for content script)
+
+- **TypeScript Support**: Full TypeScript compilation with `ts-loader`
+
+- **Babel Transpilation**: ES6+ features transpiled for browser compatibility
+
+- **Asset Handling**: Automatic copying of manifest, icons, and stylesheets to the build directory
+
+<Warning>
+The production build uses Terser for minification and code optimization. Make sure to test the production build before distributing the extension.
+</Warning>
+
+## Development vs Production
+
+The build process automatically adjusts based on the `NODE_ENV` environment variable:
+
+| Feature | Development | Production |
+|---------|-------------|------------|
+| Source maps | Enabled (`cheap-module-source-map`) | Disabled |
+| Minification | Disabled | Enabled (Terser) |
+| Hot reload | Enabled | Disabled |
+| Optimization | Minimal | Full |
+
+## Troubleshooting
+
+### Node.js Version Error
+
+If you see an error about Node.js version compatibility, ensure you're running Node.js 20 or higher:
+
+```bash
+node --version  # Should show v20.0.0 or higher
+```
+
+### Build Folder Not Found
+
+If the `build` folder doesn't exist, make sure you've run either `npm start` or `npm run build` at least once. The build folder is generated automatically by Webpack.
+
+### Camera Permissions
+
+<Note>
+The extension requires webcam access to function. You'll need to grant camera permissions when first launching the extension.
+</Note>
+
+## Next Steps
+
+Now that you have the extension built and running:
+
+1. Review the [Project Structure](/development/project-structure) to understand the codebase organization
+2. Read the [Contributing Guidelines](/development/contributing) before making changes
+3. Open the Options page to configure and test the posture tracking feature

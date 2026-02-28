@@ -1,0 +1,380 @@
+---
+title: "Customization"
+description: "Customizing posture deviation thresholds and resetting your baseline"
+---
+
+Posture!Posture!Posture! provides several ways to customize the tracking behavior to match your needs and preferences.
+
+## Good Posture Deviation Threshold
+
+The most important customization setting is the **GOOD_POSTURE_DEVIATION** value, which determines how much you can move before the extension considers it "bad posture."
+
+### Default Deviation
+
+By default, the extension allows **25 pixels** of vertical eye movement from your baseline:
+
+```typescript
+let GOOD_POSTURE_DEVIATION = useRef(25);
+```
+
+This means:
+- If your eye moves **less than 25 pixels** up or down: Good posture (no blur)
+- If your eye moves **more than 25 pixels** up or down: Bad posture (blur applied)
+
+<Note>
+  The 25-pixel threshold balances sensitivity with practicality - it allows natural small movements while detecting meaningful posture changes like slouching or craning your neck.
+</Note>
+
+### How Deviation Detection Works
+
+The extension calculates the absolute difference between your current eye position and the baseline:
+
+```typescript
+if (
+  Math.abs(
+    currentPosturePosition.current - GOOD_POSTURE_POSITION.current
+  ) > GOOD_POSTURE_DEVIATION.current
+) {
+  handlePosture({ posture: 'bad' });
+}
+
+if (
+  Math.abs(
+    currentPosturePosition.current - GOOD_POSTURE_POSITION.current
+  ) < GOOD_POSTURE_DEVIATION.current
+) {
+  handlePosture({ posture: 'good' });
+}
+```
+
+The `Math.abs()` function means movement in **either direction** (up or down) counts toward the threshold:
+- Leaning forward (eye moves down): Detected as bad posture
+- Craning neck up (eye moves up): Also detected as bad posture
+
+### Adjusting the Deviation Threshold
+
+Currently, the deviation threshold can be adjusted programmatically through the messaging system:
+
+```typescript
+if (msg.action === 'SET_GOOD_POSTURE_DEVIATION') {
+  if (!msg.payload.GOOD_POSTURE_DEVIATION) return;
+  GOOD_POSTURE_DEVIATION.current = msg.payload.GOOD_POSTURE_DEVIATION;
+}
+```
+
+<Warning>
+  **Note**: User-adjustable deviation settings are currently in development. The extension's TODO list includes "User adjustable posture deviation range" as a planned feature.
+</Warning>
+
+### Sensitivity Guidelines
+
+When customizing the deviation threshold (once the UI is available), consider these guidelines:
+
+**More Sensitive (10-20 pixels)**:
+- Detects smaller posture deviations
+- Encourages stricter posture adherence
+- May trigger more frequently during normal movements
+- Best for users who want maximum posture discipline
+
+**Default Sensitivity (25 pixels)**:
+- Balanced approach for most users
+- Allows natural micro-movements
+- Detects meaningful slouching
+- Recommended starting point
+
+**Less Sensitive (30-40 pixels)**:
+- More forgiving threshold
+- Only triggers on significant slouching
+- Better for dynamic work environments
+- May be too lenient for posture correction
+
+<Tip>
+  Start with the default 25-pixel threshold and adjust based on your experience. If you find the blur triggering too often during normal use, a higher threshold may work better. If you rarely see the blur even when slouching, try a lower threshold.
+</Tip>
+
+## Resetting Your Posture Baseline
+
+Your posture baseline is the reference point that determines "good posture." You can reset this baseline at any time.
+
+### When to Reset Your Baseline
+
+Reset your baseline when:
+
+- **After breaks**: You've left your desk and returned to a different sitting position
+- **Chair adjustment**: You've changed your chair height or desk configuration
+- **Camera moved**: Your webcam position or angle has changed
+- **Wrong initial baseline**: You accidentally started tracking while slouching
+- **Time of day changes**: Your posture needs differ between morning and afternoon
+- **Different workspace**: You've moved to a different desk or location
+
+<Warning>
+  Before resetting your baseline, ensure you're sitting with proper posture! The extension immediately captures your current position as the new "good posture" reference.
+</Warning>
+
+### How to Reset Your Baseline
+
+#### From the Options Page
+
+<Steps>
+  <Step title="Sit with good posture">
+    Position yourself correctly - back straight, shoulders back, head level, eyes looking straight ahead at your monitor.
+  </Step>
+  
+  <Step title="Click 'Reset Posture' button">
+    Click the "Reset Posture" button on the Options page. This button only appears when tracking is active.
+  </Step>
+  
+  <Step title="Baseline updated">
+    Your current eye position becomes the new baseline immediately. The white horizontal line on the video preview updates to reflect the new baseline position.
+  </Step>
+</Steps>
+
+```typescript
+const handleResetPosture = () => {
+  GOOD_POSTURE_POSITION.current = null;
+};
+```
+
+Setting the baseline to `null` triggers the extension to capture the next detected eye position as the new baseline.
+
+#### From the Browser Popup
+
+<Steps>
+  <Step title="Sit with good posture">
+    Position yourself with proper posture first.
+  </Step>
+  
+  <Step title="Open the extension popup">
+    Click the Posture!Posture!Posture! icon in your browser toolbar.
+  </Step>
+  
+  <Step title="Click 'Reset Posture'">
+    Click the "Reset Posture" button. A confirmation message appears: "Posture Reset at current position"
+  </Step>
+</Steps>
+
+```typescript
+function resetPosture() {
+  port.current && port.current.postMessage({ action: 'RESET_POSTURE' });
+  setStatus('Posture Reset at current position');
+  setTimeout(() => setStatus(''), 2500);
+}
+```
+
+The confirmation message displays for 2.5 seconds, then disappears.
+
+### How Baseline Reset Works Internally
+
+When you reset the baseline, the extension:
+
+1. Sets `GOOD_POSTURE_POSITION.current` to `null`
+2. On the next pose detection cycle (within 100ms), detects no baseline exists
+3. Captures your current right eye Y-coordinate
+4. Sets this as the new `GOOD_POSTURE_POSITION`
+5. All future comparisons use this new baseline
+
+```typescript
+if (GOOD_POSTURE_POSITION.current == null) {
+  handlePosture({ baseline: currentPosturePosition.current });
+}
+```
+
+<Note>
+  The baseline resets almost instantly - usually within 0.1 seconds of clicking the button. You'll see the white baseline line move to your current eye position on the video preview.
+</Note>
+
+### Baseline Reset Best Practices
+
+**Do:**
+- Take a moment to position yourself properly before resetting
+- Reset after any significant change to your setup
+- Reset if you notice the blur triggering constantly when you feel you're sitting well
+- Reset at the start of each work session
+
+**Don't:**
+- Reset while slouching (you'll set a poor baseline)
+- Reset too frequently during normal work (let the extension do its job)
+- Reset while moving or adjusting position (wait until settled)
+- Reset as a way to "cheat" the system (defeats the purpose!)
+
+<Tip>
+  Think of resetting the baseline as "teaching" the extension what good posture looks like for your current setup. Take it seriously and set it correctly.
+</Tip>
+
+## Visual Customization
+
+While not directly customizable through a UI, you can modify the extension's visual behavior by editing the source code.
+
+### Blur Intensity
+
+The default blur is **4 pixels**. To make it more or less intense, modify the CSS:
+
+```css
+.bad-posture > *:not(#kr-posture-app-content) {
+  filter: blur(4px);  /* Change this value */
+  transition: ease-in 0.6s;
+}
+```
+
+Recommended values:
+- **2-3px**: Subtle blur, gentle reminder
+- **4px**: Default, noticeable but readable
+- **6-8px**: Strong blur, hard to ignore
+- **10px+**: Very intense, difficult to read
+
+### Blur Transition Timing
+
+The blur appears over **0.6 seconds** and disappears over **0.3 seconds**. Adjust these transitions:
+
+```css
+.bad-posture > *:not(#kr-posture-app-content) {
+  filter: blur(4px);
+  transition: ease-in 0.6s;  /* Blur fade-in duration */
+}
+
+.good-posture > *:not(#kr-posture-app-content) {
+  filter: blur(0px);
+  transition: ease-out 0.3s;  /* Blur fade-out duration */
+}
+```
+
+Considerations:
+- **Faster transitions** (0.1-0.3s): More immediate, can feel jarring
+- **Slower transitions** (0.8-1.2s): Gentler, may be less noticeable
+
+### Keypoint Colors
+
+Keypoints appear green for good posture and red for bad posture. These are defined in `draw_utils.ts`:
+
+```typescript
+ctx.fillStyle = 'rgba(0, 255, 0, 0.9)'; // green
+if (delta > 25 || delta < -25) {
+  ctx.fillStyle = 'rgba(255, 0, 0, 0.9)'; // red
+}
+```
+
+Change the RGB values to customize colors:
+- `rgba(0, 255, 0, 0.9)`: Green (good posture)
+- `rgba(255, 0, 0, 0.9)`: Red (bad posture)
+- Format: `rgba(red, green, blue, opacity)`
+
+### Status Bar Styling
+
+The "Sit Up Straight!" message can be styled by modifying `content.styles.css`:
+
+```css
+.posture-status-bar {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  font-size: 12px;
+  /* ... other styles ... */
+}
+
+.bad-posture .posture-status-bar {
+  background-color: var(--kr-pink-lavender);
+  transform: translateY(0);
+}
+```
+
+Customize:
+- Position (`bottom`, `right` values)
+- Font size
+- Background color
+- Shadow effects
+
+## Detection Rate Customization
+
+The extension checks your posture every **100 milliseconds** (10 times per second):
+
+```typescript
+const DETECTION_RATE = 100; // rate in ms
+```
+
+You can modify this in the source code:
+
+**Faster detection (50ms)**:
+- More responsive
+- Higher CPU/GPU usage
+- Smoother visual feedback
+- May drain battery faster on laptops
+
+**Slower detection (200ms)**:
+- Lower resource usage
+- Still responsive enough for posture tracking
+- Better battery life
+- May feel slightly less immediate
+
+<Warning>
+  Detection rates below 50ms or above 500ms are not recommended. Too fast wastes resources, too slow reduces effectiveness.
+</Warning>
+
+## Camera Device Persistence
+
+If you have multiple cameras, you need to select your preferred one each time you start the extension. Currently, the extension always defaults to the first detected camera.
+
+The selected camera device is stored in state:
+
+```typescript
+const [deviceId, setDeviceId] = useState('');
+const [devices, setDevices] = useState([]);
+```
+
+<Note>
+  Future versions could add localStorage persistence to remember your preferred camera between sessions. This is not currently implemented but would be a useful enhancement.
+</Note>
+
+## Future Customization Features
+
+The extension's TODO list and codebase comments indicate planned features:
+
+### User Adjustable Deviation Range
+
+From the README:
+```
+- [ ] User adjustable posture deviation range
+```
+
+This would likely add a slider or input field to the Options page allowing you to adjust the `GOOD_POSTURE_DEVIATION` value without editing code.
+
+### Configurable Visual Feedback
+
+Several `TODO` comments in the code suggest making hardcoded values configurable:
+
+```typescript
+if (delta > 25 || delta < -25) {
+  ctx.fillStyle = 'rgba(255, 0, 0, 0.9)';
+  // TODO: make this a configurable parameter to match the GOOD_POSTURE_DEVIATION val
+}
+```
+
+This would synchronize the visual feedback colors with your custom deviation threshold.
+
+<Tip>
+  Want to contribute to these features? The extension is open source! Check the GitHub repository to contribute improvements and customization options.
+</Tip>
+
+## Advanced: Messaging API
+
+For developers wanting to integrate or extend the extension, the messaging system supports these actions:
+
+```typescript
+// Set custom deviation threshold
+port.postMessage({
+  action: 'SET_GOOD_POSTURE_DEVIATION',
+  payload: { GOOD_POSTURE_DEVIATION: 30 }
+});
+
+// Reset baseline
+port.postMessage({ 
+  action: 'RESET_POSTURE' 
+});
+
+// Toggle tracking
+port.postMessage({
+  action: 'TOGGLE_WATCHING',
+  payload: { isWatching: true }
+});
+```
+
+These messages can be sent from other extension components or external scripts to control the extension programmatically.

@@ -1,0 +1,81 @@
+---
+title: Posture!Posture!Posture!
+description: Keep track of your posture while browsing the web with real-time webcam monitoring and AI-powered pose detection
+---
+
+# Posture!Posture!Posture!
+
+Sit up straight! This browser extension helps you maintain good posture while surfing the web by using your webcam and AI-powered pose detection to monitor your sitting position in real-time.
+
+## How It Works
+
+Posture!Posture!Posture! uses TensorFlow.js and the MoveNet model to track your body position through your webcam. Here's the process:
+
+1. **Establish a baseline** - The extension captures your position when you're sitting with good posture
+2. **Continuous monitoring** - Your eye position is tracked at 100ms intervals using pose detection
+3. **Visual feedback** - When you slouch or deviate from your baseline, the browser applies a blur effect to all web pages
+4. **Instant correction** - As soon as you sit back up straight, the blur disappears and you can browse normally
+
+<Note>
+All processing happens locally in your browser. Your webcam feed never leaves your device, and no data is collected or transmitted.
+</Note>
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="AI-Powered Tracking" icon="brain">
+    Uses TensorFlow.js MoveNet for accurate, real-time pose detection that tracks your eye position and body posture
+  </Card>
+  
+  <Card title="Visual Blur Feedback" icon="eye-slash">
+    Applies a blur effect to web pages when you slouch, providing immediate visual feedback to correct your posture
+  </Card>
+  
+  <Card title="Privacy First" icon="lock">
+    All processing happens locally in your browser. No webcam data is ever transmitted or stored externally
+  </Card>
+  
+  <Card title="Easy Reset" icon="rotate-right">
+    Reset your "good posture" baseline at any time to accommodate different sitting positions or desk setups
+  </Card>
+</CardGroup>
+
+## Technologies
+
+Built with modern web technologies:
+
+- **TensorFlow.js MoveNet** - Fast, accurate pose detection model
+- **React 17** - Modern UI framework
+- **Webpack 5** - Optimized bundling
+- **TypeScript** - Type-safe development
+
+## Get Started
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/installation">
+    Install from Chrome Web Store or Firefox Add-on Marketplace
+  </Card>
+  
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Set up your first posture tracking session in minutes
+  </Card>
+</CardGroup>
+
+## Privacy & Permissions
+
+The extension requires camera access and the ability to modify web pages to provide the blur effect. However:
+
+- No analytics or tracking libraries are included
+- Your webcam feed is processed locally and never transmitted
+- No user data is collected or stored
+- The only data visible to developers is standard browser store statistics (install/uninstall counts, active users)
+
+<Warning>
+On first use, you'll need to grant camera permission to the extension. This is required for pose detection to work.
+</Warning>
+
+## Open Source
+
+Posture!Posture!Posture! is open source and available on GitHub. Contributions and feedback are welcome!
+
+**Repository**: [github.com/killa-kyle/posture-posture-posture-chrome-extension](https://github.com/killa-kyle/posture-posture-posture-chrome-extension)

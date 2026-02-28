@@ -1,0 +1,273 @@
+---
+title: Contributing Guidelines
+description: How to contribute to the Posture!Posture!Posture! extension project
+---
+
+Thank you for your interest in contributing to Posture!Posture!Posture! This guide will help you get started with contributing to the project.
+
+## Getting Started
+
+Before you begin contributing, make sure you have the development environment set up properly.
+
+<Steps>
+  <Step title="Fork and clone the repository">
+    Fork the repository on GitHub and clone your fork:
+    
+    ```bash
+    git clone https://github.com/YOUR_USERNAME/posture-posture-posture-chrome-extension.git
+    cd posture-posture-posture-chrome-extension
+    ```
+  </Step>
+
+  <Step title="Set up development environment">
+    Install dependencies and start the development server:
+    
+    ```bash
+    npm install
+    npm start
+    ```
+    
+    Refer to the [Building from Source](/development/building-from-source) guide for detailed setup instructions.
+  </Step>
+
+  <Step title="Load the extension in your browser">
+    Load the unpacked extension from the `build/` folder in Chrome or Firefox to test your changes.
+    
+    See the [Building from Source](/development/building-from-source#installation-steps) guide for browser-specific instructions.
+  </Step>
+
+  <Step title="Create a feature branch">
+    Create a new branch for your changes:
+    
+    ```bash
+    git checkout -b feature/your-feature-name
+    ```
+    
+    Use descriptive branch names like `feature/adjustable-blur`, `fix/camera-permission`, or `docs/update-readme`.
+  </Step>
+</Steps>
+
+## Development Workflow
+
+### Making Changes
+
+1. **Make your changes** in the `src/` directory
+2. **Test thoroughly** by loading the extension in your browser
+3. **Run code formatting** before committing:
+
+```bash
+npm run prettier
+```
+
+<Note>
+The project uses Prettier for consistent code formatting across JavaScript, TypeScript, JSON, CSS, SCSS, and Markdown files.
+</Note>
+
+### Testing Your Changes
+
+Since this is a browser extension with webcam integration, testing requires manual verification:
+
+<Steps>
+  <Step title="Test the Options page">
+    1. Open the extension's Options page
+    2. Grant camera permissions if prompted
+    3. Wait for the MoveNet model to load and start tracking
+    4. Verify that pose detection is working correctly
+    5. Set a "good posture" baseline
+  </Step>
+
+  <Step title="Test the content script">
+    1. Navigate to any website
+    2. Ensure the blur effect applies when you deviate from good posture
+    3. Verify the blur disappears when you return to good posture
+    4. Test on multiple websites to ensure compatibility
+  </Step>
+
+  <Step title="Test the popup">
+    1. Click the extension icon in the browser toolbar
+    2. Test the "Reset Good Posture" functionality
+    3. Verify the popup UI displays correctly
+  </Step>
+
+  <Step title="Test the production build">
+    Create a production build and test it:
+    
+    ```bash
+    npm run build
+    ```
+    
+    Load the production build in your browser and verify all functionality works with minified code.
+  </Step>
+</Steps>
+
+### Hot Reload Behavior
+
+<Warning>
+Hot module replacement is enabled for Options and Popup pages but disabled for the content script and background service worker.
+</Warning>
+
+When making changes:
+- **Options/Popup pages**: Changes auto-reload
+- **Content script**: Requires manual extension reload in `chrome://extensions/`
+- **Background service worker**: Requires manual extension reload
+- **Manifest changes**: Requires manual extension reload
+
+## Code Style Guidelines
+
+### JavaScript and TypeScript
+
+- Use **TypeScript** for new files when possible
+- Follow the existing code style (enforced by ESLint)
+- Use **functional components** and React Hooks
+- Add **type annotations** for function parameters and return types
+
+### File Organization
+
+- Place new components in the appropriate `src/pages/` subdirectory
+- Keep utility functions in separate modules (e.g., `modules/draw_utils.ts`)
+- Use descriptive file names that reflect the component or functionality
+
+### React Best Practices
+
+- Use **React 17** patterns (the project uses React 17.0.2)
+- Prefer **hooks** over class components
+- Keep components focused and single-purpose
+- Extract reusable logic into custom hooks
+
+## Submitting Changes
+
+### Before Submitting
+
+<Steps>
+  <Step title="Format your code">
+    Run Prettier to ensure consistent formatting:
+    
+    ```bash
+    npm run prettier
+    ```
+  </Step>
+
+  <Step title="Test thoroughly">
+    - Test all affected functionality
+    - Test in both Chrome and Firefox if possible
+    - Create a production build and test it
+  </Step>
+
+  <Step title="Commit your changes">
+    Write clear, descriptive commit messages:
+    
+    ```bash
+    git add .
+    git commit -m "Add adjustable blur intensity setting"
+    ```
+  </Step>
+
+  <Step title="Push to your fork">
+    ```bash
+    git push origin feature/your-feature-name
+    ```
+  </Step>
+</Steps>
+
+### Creating a Pull Request
+
+1. Go to the [original repository](https://github.com/killa-kyle/posture-posture-posture-chrome-extension) on GitHub
+2. Click "New Pull Request"
+3. Select your fork and branch
+4. Provide a clear title and description:
+   - What changes did you make?
+   - Why are these changes needed?
+   - How did you test the changes?
+5. Submit the pull request
+
+### Pull Request Guidelines
+
+- **One feature per PR**: Keep pull requests focused on a single feature or fix
+- **Descriptive titles**: Use clear, concise titles that summarize the changes
+- **Detailed descriptions**: Explain what, why, and how
+- **Screenshots/videos**: Include visual evidence for UI changes
+- **Test results**: Describe how you tested the changes
+
+## Feature Ideas and Roadmap
+
+The project has several potential enhancements:
+
+### Current TODOs
+
+- User adjustable posture deviation range
+- Additional configuration options
+- Improved visual feedback
+- Performance optimizations
+
+### Suggesting New Features
+
+Before implementing a new feature:
+
+1. **Check existing issues** to see if it's already been discussed
+2. **Open an issue** to discuss the feature with maintainers
+3. **Wait for feedback** before investing significant development time
+4. **Implement the feature** once approved
+
+## Privacy and Security
+
+<Warning>
+The extension requires "view all pages" permission to function. This is necessary for applying the blur effect on all websites.
+</Warning>
+
+### Privacy Commitment
+
+- **No analytics**: The extension does not include any analytics or tracking libraries
+- **No data collection**: User data never leaves the extension
+- **Local processing**: All pose detection happens locally using TensorFlow.js
+- **No external requests**: The extension does not make network requests
+
+When contributing, please maintain these privacy principles:
+
+- Do not add analytics or tracking code
+- Do not collect or transmit user data
+- Keep all processing local to the browser
+- Do not add dependencies that compromise privacy
+
+## License
+
+By contributing to this project, you agree that your contributions will be licensed under the MIT License.
+
+### MIT License Summary
+
+The project is licensed under the MIT License, which allows:
+
+- Commercial use
+- Modification
+- Distribution
+- Private use
+
+With the conditions:
+
+- License and copyright notice must be included
+- Software is provided "as is" without warranty
+
+See the [LICENSE](https://github.com/killa-kyle/posture-posture-posture-chrome-extension/blob/main/LICENSE) file for full details.
+
+## Getting Help
+
+- **Documentation**: Review the [Project Structure](/development/project-structure) for codebase organization
+- **Issues**: Check [GitHub Issues](https://github.com/killa-kyle/posture-posture-posture-chrome-extension/issues) for known problems
+- **Questions**: Open a new issue with the "question" label
+
+## Recognition
+
+Contributors are recognized in the project's commit history and GitHub contributors list. Thank you for helping improve Posture!Posture!Posture!
+
+## Technology Resources
+
+Familiarize yourself with the key technologies:
+
+- [React Documentation](https://react.dev/)
+- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
+- [Chrome Extension Manifest V3](https://developer.chrome.com/docs/extensions/mv3/intro/)
+- [TensorFlow.js MoveNet](https://www.tensorflow.org/hub/tutorials/movenet)
+- [Webpack 5 Documentation](https://webpack.js.org/)
+
+<Note>
+The extension uses React 17, which has a different API than React 18. Be sure to reference React 17 documentation when working with the codebase.
+</Note>

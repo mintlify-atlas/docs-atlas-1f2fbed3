@@ -1,0 +1,197 @@
+---
+title: "Camera Setup"
+description: "Setting up camera permissions and selecting the right device for posture tracking"
+---
+
+Before you can start tracking your posture, you need to grant camera access and select the appropriate camera device.
+
+## Granting Camera Permissions
+
+The extension requires access to your webcam to detect your posture using the MoveNet pose detection model.
+
+<Steps>
+  <Step title="Open the Options page">
+    Click the Posture!Posture!Posture! extension icon in your browser toolbar, then click "Open Popup" to launch the Options window.
+  </Step>
+  
+  <Step title="Click 'Start' to begin tracking">
+    Click the "Start" button on the Options page. This will trigger the browser's camera permission prompt.
+  </Step>
+  
+  <Step title="Allow camera access">
+    When your browser asks for camera permission, click "Allow" to grant access to the extension.
+  </Step>
+</Steps>
+
+<Warning>
+  **First-time setup**: You must allow camera access for the extension to work. The camera feed is processed entirely locally in your browser - no video data is ever transmitted or stored.
+</Warning>
+
+### Permission Denied?
+
+If you accidentally denied camera access or need to reset permissions:
+
+**Chrome:**
+1. Click the lock icon in the address bar when viewing the Options page
+2. Find "Camera" in the permissions list
+3. Change the setting to "Allow"
+4. Refresh the page and click "Start" again
+
+**Firefox:**
+1. Click the lock icon in the address bar
+2. Click "More Information" → "Permissions" tab
+3. Find "Use the Camera" and uncheck "Use Default"
+4. Select "Allow" and refresh the page
+
+## Selecting Your Camera Device
+
+If you have multiple cameras (built-in webcam, external USB camera, etc.), you can choose which one to use for posture tracking.
+
+### Available Cameras
+
+Once camera access is granted, the extension automatically detects all available video input devices:
+
+```typescript
+const handleDevices = (mediaDevices) => {
+  const cameras = mediaDevices.filter(
+    (device) => device.kind === 'videoinput'
+  );
+  
+  if (!cameras.length) return;
+  setDevices(cameras);
+  setDeviceId(cameras[0].deviceId);
+};
+```
+
+<Note>
+  By default, the extension uses the first detected camera (usually your built-in webcam).
+</Note>
+
+### Switching Between Cameras
+
+To switch to a different camera:
+
+<Steps>
+  <Step title="Locate the camera dropdown">
+    On the Options page, find the dropdown menu below the Start/Stop and Reset Posture buttons.
+  </Step>
+  
+  <Step title="Select your preferred camera">
+    Click the dropdown and select a different camera from the list. Each camera is labeled with its name (e.g., "FaceTime HD Camera" or "USB Camera").
+  </Step>
+  
+  <Step title="Wait for automatic restart">
+    The extension automatically stops and restarts tracking with the new camera - no manual action needed!
+  </Step>
+</Steps>
+
+### How Camera Switching Works
+
+When you select a different camera, the extension performs a smooth transition:
+
+```typescript
+async function handleSetDeviceId(e) {
+  await setDeviceId(e.target.value);
+  await setIsWatching(false);
+  await setIsWatching((isWatching) => !isWatching);
+}
+```
+
+This process:
+1. Updates the selected device ID
+2. Stops the current camera stream
+3. Restarts tracking with the new camera
+
+<Tip>
+  When switching cameras, you'll need to set a new good posture baseline since camera angles and positions differ between devices.
+</Tip>
+
+## Camera Best Practices
+
+### Positioning Your Camera
+
+For optimal posture tracking, position your camera:
+
+- **At eye level or slightly above**: This provides the clearest view of your upper body and face
+- **Directly in front of you**: Angled cameras may affect tracking accuracy
+- **About arm's length away**: Too close or too far can reduce detection quality
+- **In good lighting**: Ensure your face and upper body are well-lit
+
+<Warning>
+  Avoid backlighting (sitting in front of a bright window) as this can make it difficult for MoveNet to detect your pose keypoints.
+</Warning>
+
+### Ideal Camera Setup
+
+**Built-in laptop webcam:**
+- Place your laptop on a stand to raise the camera to eye level
+- Avoid looking down at your screen, which defeats the purpose of posture tracking!
+
+**External webcam:**
+- Mount on top of your monitor at eye level
+- Angle slightly downward to capture your shoulders and torso
+- Ensure a stable mount (wobbling cameras affect tracking)
+
+## Troubleshooting Camera Issues
+
+### Camera Not Detected
+
+If no cameras appear in the dropdown:
+
+1. Check that your camera is properly connected (for external cameras)
+2. Verify camera permissions are granted
+3. Close other applications that might be using the camera (Zoom, Teams, etc.)
+4. Refresh the Options page
+5. Try restarting your browser
+
+### Video Feed Not Showing
+
+If the camera list appears but no video feed shows:
+
+1. Ensure you clicked "Start" to begin tracking
+2. Check that the selected camera is the correct one
+3. Try switching to a different camera and back
+4. Verify camera permissions in browser settings
+
+### Poor Tracking Quality
+
+If the extension frequently loses track of your pose:
+
+- **Improve lighting**: Add light sources in front of you
+- **Remove obstructions**: Ensure your head and shoulders are fully visible
+- **Adjust camera angle**: Position the camera to capture your full upper body
+- **Check distance**: Move closer or farther from the camera
+
+<Note>
+  MoveNet requires a clear view of at least your head and shoulders to detect posture accurately. If keypoints appear red in the video preview, it indicates tracking issues.
+</Note>
+
+## Privacy and Security
+
+Your privacy is protected throughout the camera setup and usage:
+
+- Camera feed is processed **entirely locally** using TensorFlow.js
+- No video or image data is uploaded to external servers
+- No analytics or tracking libraries are included
+- The extension only extracts pose keypoint coordinates (simple X,Y numbers)
+- Your webcam feed is **never recorded or stored**
+
+<Tip>
+  You can verify the extension's privacy by reviewing the open-source code on GitHub. The only permission required is camera access - the extension doesn't request network permissions for data transmission.
+</Tip>
+
+## Keeping the Options Window Open
+
+For the extension to track your posture continuously, the Options page must remain open.
+
+<Warning>
+  **Important**: The Options window must be visible (not minimized) at least once for tracking to initialize properly. After initialization, you can minimize it, but it must stay open in the background.
+</Warning>
+
+**Recommended setup:**
+1. Open the Options page when you start working
+2. Position it on a secondary monitor or in a corner of your screen
+3. Leave it running throughout your browsing session
+4. The live video feed provides useful visual feedback as you work
+
+Alternatively, you can minimize the window after tracking starts, though you'll lose the visual feedback of the pose detection overlay.

@@ -1,0 +1,173 @@
+---
+title: "How It Works"
+description: "Understanding the posture tracking mechanism behind Posture!Posture!Posture!"
+---
+
+Posture!Posture!Posture! uses machine learning to monitor your posture while you browse the web. The extension applies a blur effect to your screen when you slouch, encouraging you to sit up straight.
+
+## Core Technology: MoveNet
+
+The extension uses **TensorFlow.js MoveNet**, a fast and accurate pose detection model that runs directly in your browser.
+
+<Note>
+  MoveNet analyzes your webcam feed in real-time to detect 17 body keypoints, including eyes, shoulders, elbows, and hips. For posture tracking, the extension specifically monitors the position of your right eye.
+</Note>
+
+### Model Configuration
+
+The extension uses the `SINGLEPOSE_LIGHTNING` model variant for optimal performance:
+
+```typescript
+const detectorConfig = {
+  modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
+};
+detector = await poseDetection.createDetector(
+  poseDetection.SupportedModels.MoveNet,
+  detectorConfig
+);
+```
+
+Pose detection runs continuously at **100ms intervals** (10 times per second) when tracking is active.
+
+## Baseline Detection
+
+When you first start the extension, it establishes your "good posture" baseline automatically.
+
+<Steps>
+  <Step title="Sit with good posture">
+    Position yourself with proper posture - back straight, shoulders back, head level.
+  </Step>
+  
+  <Step title="Start camera tracking">
+    The extension begins analyzing your webcam feed and detects your right eye position.
+  </Step>
+  
+  <Step title="Baseline is set">
+    The first detected eye position becomes your good posture baseline. A white horizontal line appears on the video preview showing this baseline.
+  </Step>
+</Steps>
+
+### How the Baseline Works
+
+The extension tracks the **vertical Y-coordinate** of your right eye (keypoint index 2):
+
+```typescript
+let rightEyePosition = poses[0].keypoints[2].y;
+currentPosturePosition.current = rightEyePosition;
+
+if (GOOD_POSTURE_POSITION.current == null) {
+  handlePosture({ baseline: currentPosturePosition.current });
+}
+```
+
+This baseline represents where your eye should be when you're sitting properly.
+
+## Posture Deviation Detection
+
+The extension continuously compares your current eye position against the baseline to determine if you're slouching.
+
+### Deviation Threshold
+
+By default, the extension allows **25 pixels** of deviation from your baseline:
+
+```typescript
+let GOOD_POSTURE_DEVIATION = useRef(25);
+```
+
+<Tip>
+  The deviation threshold accounts for natural small movements while seated. If your eye position moves more than 25 pixels up or down from the baseline, the extension considers this "bad posture."
+</Tip>
+
+### Real-time Comparison
+
+Every 100ms, the extension calculates the absolute difference between your current and baseline positions:
+
+```typescript
+if (
+  Math.abs(
+    currentPosturePosition.current - GOOD_POSTURE_POSITION.current
+  ) > GOOD_POSTURE_DEVIATION.current
+) {
+  handlePosture({ posture: 'bad' });
+}
+
+if (
+  Math.abs(
+    currentPosturePosition.current - GOOD_POSTURE_POSITION.current
+  ) < GOOD_POSTURE_DEVIATION.current
+) {
+  handlePosture({ posture: 'good' });
+}
+```
+
+## The Blur Effect
+
+When bad posture is detected, the extension applies a blur filter to all page content, creating an immediate visual cue.
+
+### How the Blur is Applied
+
+The extension injects a content script that adds CSS classes to the page body:
+
+**Bad Posture:**
+```css
+.bad-posture > *:not(#kr-posture-app-content) {
+  filter: blur(4px);
+  transition: ease-in 0.6s;
+}
+```
+
+**Good Posture:**
+```css
+.good-posture > *:not(#kr-posture-app-content) {
+  filter: blur(0px);
+  transition: ease-out 0.3s;
+}
+```
+
+<Note>
+  The blur applies to all page elements except the extension's own status bar. The blur transitions smoothly - taking 0.6s to apply when slouching and 0.3s to remove when sitting up.
+</Note>
+
+### Status Message
+
+When you slouch, a status bar appears in the bottom-right corner displaying "Sit Up Straight!" - another gentle reminder to correct your posture.
+
+## Architecture Overview
+
+The extension consists of three main components that communicate via Chrome's messaging API:
+
+<Accordion title="Options Page (options.html)">
+  - Runs the webcam and MoveNet model
+  - Performs pose detection every 100ms
+  - Establishes and stores the good posture baseline
+  - Sends posture status to the background script
+  - Provides camera controls and device selection
+</Accordion>
+
+<Accordion title="Background Script">
+  - Relays posture messages from the Options page to active tabs
+  - Manages the extension badge (shows "ON" or "OFF" status)
+  - Coordinates communication between components
+</Accordion>
+
+<Accordion title="Content Script">
+  - Injected into all web pages
+  - Listens for posture status messages
+  - Applies or removes the blur effect via CSS classes
+  - Displays the "Sit Up Straight!" status bar when needed
+</Accordion>
+
+<Warning>
+  All processing happens locally in your browser. Your webcam feed never leaves your device, and no data is sent to external servers.
+</Warning>
+
+## Visual Feedback
+
+The Options page provides real-time visual feedback:
+
+- **Keypoints**: Green or red dots overlay your body showing detected pose points
+- **Baseline line**: White horizontal line showing your good posture eye position
+- **Current position line**: Another horizontal line showing where your eye is now
+- **Delta visualization**: A colored rectangle showing the distance between baseline and current position (green when within threshold, red when exceeding it)
+
+This visual feedback helps you understand exactly how the extension is tracking your posture.

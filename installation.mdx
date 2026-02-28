@@ -1,0 +1,144 @@
+---
+title: Installation
+description: Install Posture!Posture!Posture! from the Chrome Web Store or Firefox Add-on Marketplace
+---
+
+# Installation
+
+Posture!Posture!Posture! is available for both Chrome and Firefox browsers. Choose your browser below to get started.
+
+## Chrome Web Store
+
+Install the extension directly from the Chrome Web Store for Chrome, Edge, Brave, and other Chromium-based browsers.
+
+<Steps>
+  <Step title="Visit the Chrome Web Store">
+    Navigate to the [Posture!Posture!Posture! listing](https://chrome.google.com/webstore/detail/posturepostureposture/ekleaenhplpaiincbdkbebmeccfgmbll) on the Chrome Web Store.
+  </Step>
+  
+  <Step title="Add to Chrome">
+    Click the "Add to Chrome" button in the top-right corner of the page.
+  </Step>
+  
+  <Step title="Confirm installation">
+    When prompted, click "Add extension" to confirm the installation and grant necessary permissions.
+  </Step>
+  
+  <Step title="Pin the extension (optional)">
+    Click the extensions icon (puzzle piece) in your browser toolbar and pin Posture!Posture!Posture! for easy access.
+  </Step>
+</Steps>
+
+<Note>
+The extension requires camera access and the ability to modify web pages. These permissions are necessary for pose detection and applying the blur effect.
+</Note>
+
+## Firefox Add-on Marketplace
+
+Install the extension from the official Firefox Add-ons site.
+
+<Steps>
+  <Step title="Visit Firefox Add-ons">
+    Navigate to the [Posture!Posture!Posture! listing](https://addons.mozilla.org/en-US/firefox/addon/posture-posture-posture/) on the Firefox Add-on Marketplace.
+  </Step>
+  
+  <Step title="Add to Firefox">
+    Click the "Add to Firefox" button.
+  </Step>
+  
+  <Step title="Confirm installation">
+    When prompted, click "Add" to confirm the installation and grant necessary permissions.
+  </Step>
+  
+  <Step title="Access the extension">
+    Click the extension icon in your toolbar or access it through the Firefox menu > Add-ons.
+  </Step>
+</Steps>
+
+## Developer Mode Installation
+
+If you want to install the extension from source for development or testing purposes, follow these steps.
+
+### Prerequisites
+
+- Node.js version 20 or higher
+- npm (comes with Node.js)
+- Git
+
+### Installation Steps
+
+<Steps>
+  <Step title="Clone the repository">
+    ```bash
+    git clone https://github.com/killa-kyle/posture-posture-posture-chrome-extension.git
+    cd posture-posture-posture-chrome-extension
+    ```
+  </Step>
+  
+  <Step title="Install dependencies">
+    ```bash
+    npm install
+    ```
+  </Step>
+  
+  <Step title="Build the extension">
+    ```bash
+    npm start
+    ```
+    This will create a `build` folder with the compiled extension.
+  </Step>
+  
+  <Step title="Load in Chrome">
+    1. Navigate to `chrome://extensions/`
+    2. Enable "Developer mode" using the toggle in the top-right
+    3. Click "Load unpacked"
+    4. Select the `build` folder from the cloned repository
+  </Step>
+  
+  <Step title="Verify installation">
+    The extension should now appear in your extensions list with the Posture!Posture!Posture! icon.
+  </Step>
+</Steps>
+
+<Warning>
+Developer mode installations won't auto-update. You'll need to rebuild and reload the extension manually to get updates.
+</Warning>
+
+## Permissions Explained
+
+The extension requires the following permissions:
+
+| Permission | Purpose |
+|------------|----------|
+| **Camera Access** | Required to capture your webcam feed for pose detection |
+| **Access to all websites** | Needed to apply the blur effect to web pages when you slouch |
+| **Storage** | Stores your preferences and baseline posture position locally |
+
+<Note>
+All data processing happens locally in your browser. No webcam data or personal information is transmitted to external servers.
+</Note>
+
+## Troubleshooting
+
+### Extension icon not visible
+- Click the extensions icon (puzzle piece) in your toolbar
+- Find Posture!Posture!Posture! in the list
+- Click the pin icon to keep it visible
+
+### Camera permission denied
+1. Click the extension icon
+2. When prompted, click "Allow" for camera access
+3. If you previously denied permission, you may need to reset it in your browser settings
+
+### Extension not working after installation
+- Try refreshing any open web pages
+- Restart your browser
+- Ensure you've granted camera permissions
+
+## Next Steps
+
+Now that you've installed the extension, learn how to set up your first posture tracking session:
+
+<Card title="Quick Start Guide" icon="rocket" href="/quickstart">
+  Learn how to configure and start using Posture!Posture!Posture!
+</Card>

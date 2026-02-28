@@ -1,0 +1,320 @@
+---
+title: "Tracking Your Posture"
+description: "Complete guide to using Posture!Posture!Posture! for real-time posture monitoring"
+---
+
+Once your camera is set up, you're ready to start tracking your posture while browsing the web.
+
+## Starting Posture Tracking
+
+<Steps>
+  <Step title="Open the extension popup">
+    Click the Posture!Posture!Posture! icon in your browser toolbar to open the popup menu.
+  </Step>
+  
+  <Step title="Launch the Options window">
+    Click the "Open Popup" button. This opens a new window with the camera controls and live video feed.
+  </Step>
+  
+  <Step title="Sit with good posture">
+    **Important**: Before clicking Start, position yourself with proper posture - back straight, shoulders back, head level. This becomes your baseline.
+  </Step>
+  
+  <Step title="Click 'Start' to begin tracking">
+    Click the green "Start" button on the Options page. The extension will:
+    - Activate your webcam
+    - Load the MoveNet pose detection model
+    - Begin tracking your posture
+    - Set the extension badge to "ON"
+  </Step>
+</Steps>
+
+<Note>
+  The first time you start tracking, you may need to grant camera permissions. See the [Camera Setup](/guide/setup-camera) guide for details.
+</Note>
+
+### Visual Confirmation
+
+When tracking starts successfully, you'll see:
+
+- Live video feed from your camera
+- Colored dots (keypoints) overlaying your body on the video
+- A white horizontal line showing your good posture baseline
+- Another line showing your current eye position
+- The browser extension badge changes to "ON"
+- The page title updates to "TRACKING POSTURE - Posture!Posture!Posture!"
+
+## Understanding the Video Preview
+
+The Options page shows your webcam feed with pose detection overlays:
+
+### Keypoints
+
+Colored dots appear on detected body parts (eyes, nose, shoulders, etc.):
+
+- **Green keypoints**: Your posture is good (within the deviation threshold)
+- **Red keypoints**: You're slouching (beyond the deviation threshold)
+
+```typescript
+ctx.fillStyle = 'rgba(0, 255, 0, 0.9)'; // green if within threshold
+if (delta > 25 || delta < -25) {
+  ctx.fillStyle = 'rgba(255, 0, 0, 0.9)'; // red if slouching
+}
+```
+
+### Baseline and Position Lines
+
+**White horizontal line**: Your good posture baseline (set when you first started tracking)
+
+**Current position line**: Shows where your right eye is now
+
+### Delta Visualization
+
+A colored rectangle between the two lines shows the difference:
+
+- **Green rectangle**: Small deviation, still considered good posture
+- **Red rectangle**: Large deviation, triggers the blur effect
+
+<Tip>
+  Watch the delta rectangle as you slouch and sit back up. It provides immediate visual feedback on how your posture changes affect the tracking.
+</Tip>
+
+## The Blur Effect in Action
+
+When tracking detects bad posture, web pages automatically blur to encourage you to sit up straight.
+
+### How It Responds
+
+**When you slouch** (eye position moves more than 25 pixels from baseline):
+- Web page content blurs with a 4px blur filter
+- Transition takes 0.6 seconds (smooth fade-in)
+- A status message "Sit Up Straight!" appears in the bottom-right corner
+- Extension continues monitoring
+
+**When you sit up straight** (eye position returns within 25 pixels of baseline):
+- Blur effect removes immediately
+- Transition takes 0.3 seconds (quick fade-out)
+- Status message disappears
+- You can continue browsing normally
+
+<Note>
+  The blur applies to **all web pages** you visit while tracking is active, creating a consistent reminder across your entire browsing session.
+</Note>
+
+### What Gets Blurred?
+
+The blur effect applies to all page content except the extension's own interface:
+
+```css
+.bad-posture > *:not(#kr-posture-app-content) {
+  filter: blur(4px);
+  transition: ease-in 0.6s;
+}
+```
+
+This means:
+- All text, images, and UI elements blur
+- The status bar remains sharp and readable
+- The blur is noticeable but not completely illegible
+
+## Using the Browser Popup Controls
+
+Once tracking is running, you can control it from the browser toolbar popup without opening the full Options window.
+
+### Available Controls
+
+**Start/Stop Button**:
+- Green "Start" button when tracking is off
+- Red "Stop" button when tracking is active
+- Toggles tracking on/off with one click
+
+```typescript
+async function toggleWatching() {
+  port.current.postMessage({
+    action: 'TOGGLE_WATCHING',
+    payload: { isWatching: !isWatching },
+  });
+  setIsWatching((isWatching) => !isWatching);
+}
+```
+
+**Reset Posture Button**:
+- Only appears when tracking is active
+- Sets a new good posture baseline at your current position
+- Useful when you intentionally change seating position
+
+```typescript
+function resetPosture() {
+  port.current.postMessage({ action: 'RESET_POSTURE' });
+  setStatus('Posture Reset at current position');
+}
+```
+
+<Warning>
+  When you click "Reset Posture," make sure you're sitting with proper posture! The extension immediately sets your current position as the new baseline.
+</Warning>
+
+## Stopping Posture Tracking
+
+You can stop tracking at any time:
+
+### From the Options Page
+
+1. Click the red "Stop" button
+2. The webcam turns off
+3. The extension badge changes to "OFF"
+4. Blur effects are removed from all pages
+5. The page title updates to "Posture!Posture!Posture! - Options"
+
+### From the Browser Popup
+
+1. Click the Posture!Posture!Posture! extension icon
+2. Click the red "Stop" button
+3. Tracking stops immediately
+
+### Closing the Options Window
+
+<Warning>
+  If you close the Options window entirely, tracking stops automatically. The Options page must remain open (though it can be minimized) for continuous tracking.
+</Warning>
+
+## Typical Tracking Workflow
+
+Here's a recommended daily workflow:
+
+<Steps>
+  <Step title="Morning: Set your baseline">
+    When you start working:
+    1. Open the extension popup
+    2. Click "Open Popup" to launch Options
+    3. Sit with excellent posture
+    4. Click "Start" to establish your baseline
+  </Step>
+  
+  <Step title="During work: Monitor continuously">
+    - Position the Options window on a secondary monitor or minimize it
+    - Browse normally - the blur effect will remind you if you slouch
+    - Glance at the video preview occasionally to see your posture tracking
+  </Step>
+  
+  <Step title="After breaks: Reset if needed">
+    When you return from lunch or a break:
+    1. Sit with good posture
+    2. Click "Reset Posture" in the popup
+    3. Continue working with the new baseline
+  </Step>
+  
+  <Step title="End of day: Stop tracking">
+    When you're done working:
+    1. Click "Stop" in the popup or Options page
+    2. Close the Options window
+  </Step>
+</Steps>
+
+## Tracking Status Indicators
+
+The extension provides several ways to check if tracking is active:
+
+### Extension Badge
+
+- **"ON"** badge: Tracking is currently active
+- **"OFF"** badge: Tracking is stopped
+
+```typescript
+if (!isCurrentlyWatching) {
+  chrome.action.setBadgeText({ text: 'ON' });
+} else {
+  chrome.action.setBadgeText({ text: 'OFF' });
+}
+```
+
+### Options Page Title
+
+- **"TRACKING POSTURE - Posture!Posture!Posture!"**: Tracking is active
+- **"Posture!Posture!Posture! - Options"**: Tracking is stopped
+
+### Video Feed
+
+- Camera active with keypoints visible: Tracking is running
+- "Start Camera" message: Tracking is stopped
+
+## Detection Frequency
+
+The extension performs pose detection every **100 milliseconds** (10 times per second):
+
+```typescript
+const DETECTION_RATE = 100; // ms
+
+setInterval(() => {
+  return detect(detector);
+}, DETECTION_RATE);
+```
+
+This frequency provides:
+- Responsive feedback when you slouch or sit up
+- Smooth transitions of the blur effect
+- Minimal CPU/GPU usage
+- Real-time tracking without lag
+
+<Note>
+  You won't notice the 100ms intervals - the tracking feels continuous and immediate. The blur effect applies within a fraction of a second when you slouch.
+</Note>
+
+## Troubleshooting Tracking Issues
+
+### Blur Effect Not Appearing
+
+**Possible causes:**
+1. Tracking isn't started - check for "ON" badge
+2. Options window is closed - keep it open (can be minimized)
+3. Your posture is actually good! Try slouching significantly to test
+4. Camera isn't detecting your face - check the video preview
+
+### Blur Effect Constantly Active
+
+**Possible causes:**
+1. Baseline was set while slouching - click "Reset Posture" while sitting straight
+2. Camera angle changed - reposition camera or reset baseline
+3. Lighting changed dramatically - improve lighting or reset baseline
+4. Wrong camera selected - switch to the camera facing you
+
+### Keypoints Not Showing
+
+**Possible causes:**
+1. Camera isn't detecting a person - ensure you're in frame
+2. Poor lighting - add light sources
+3. Obstruction blocking view - remove objects between you and camera
+4. MoveNet model still loading - wait 10-20 seconds after starting
+
+### Erratic Behavior
+
+**Possible causes:**
+1. Busy CPU/GPU - close other heavy applications
+2. Multiple people in frame - MoveNet tracks the most prominent person
+3. Complex background - use a simpler background for better detection
+
+<Tip>
+  Watch the keypoints in the video preview. If they're bouncing around or frequently red, try adjusting your camera position, lighting, or distance from the camera.
+</Tip>
+
+## Best Practices
+
+### For Accurate Tracking
+
+1. **Set baseline when truly sitting well**: Don't rush - take time to position yourself properly
+2. **Keep consistent lighting**: Dramatic light changes can affect detection
+3. **Maintain camera position**: Don't move or adjust your camera after setting the baseline
+4. **Stay in frame**: Ensure your head and shoulders remain visible
+5. **Reset when changing positions**: If you adjust your chair height or desk, reset the baseline
+
+### For Best Results
+
+1. **Use on a secondary monitor**: Keep the Options window visible for real-time feedback
+2. **Check in periodically**: Glance at the video feed to see your posture objectively
+3. **Don't fight it**: If the blur appears, sit up - it's doing its job!
+4. **Reset after breaks**: Your seating position often changes after leaving your desk
+5. **Combine with ergonomics**: The extension works best when paired with a proper ergonomic setup
+
+<Note>
+  Posture!Posture!Posture! is a reminder tool, not a replacement for good ergonomic practices. Ensure your desk, chair, and monitor are properly positioned for healthy posture.
+</Note>

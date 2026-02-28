@@ -1,0 +1,405 @@
+---
+title: Pose Detection
+description: MoveNet integration, pose detection logic, and drawing utilities in Posture!Posture!Posture!
+---
+
+## Overview
+
+Posture detection is powered by **TensorFlow.js** and the **MoveNet** model, which detects human body keypoints in real-time from webcam video. The system tracks the user's right eye position and compares it to a baseline "good posture" position.
+
+## MoveNet Model
+
+### Model Configuration
+
+The extension uses the **SINGLEPOSE_LIGHTNING** variant of MoveNet for fast, real-time detection:
+
+```typescript
+const detectorConfig = {
+  modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
+};
+
+detector = await poseDetection.createDetector(
+  poseDetection.SupportedModels.MoveNet,
+  detectorConfig
+);
+```
+
+<Note>
+  **SINGLEPOSE_LIGHTNING** is optimized for speed over accuracy, making it ideal for real-time browser-based pose detection. It detects 17 keypoints including eyes, nose, shoulders, elbows, wrists, hips, knees, and ankles.
+</Note>
+
+### Loading the Model
+
+The model is loaded when the Options component mounts:
+
+```typescript
+const loadMoveNet = async () => {
+  const detectorConfig = {
+    modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
+  };
+  detector = await poseDetection.createDetector(
+    poseDetection.SupportedModels.MoveNet,
+    detectorConfig
+  );
+
+  // Start detection loop at 100ms intervals
+  setInterval(() => {
+    return detect(detector);
+  }, DETECTION_RATE);
+};
+```
+
+**Key Parameters**:
+- `DETECTION_RATE`: 100ms (10 detections per second)
+- Model loads asynchronously on component mount
+- Detection loop runs continuously while page is open
+
+## Detection Pipeline
+
+### The `detect()` Function
+
+The core detection function runs every 100ms and orchestrates the entire detection pipeline:
+
+```typescript
+const detect = async (model: { estimatePoses: (arg0: any) => any }) => {
+  if (
+    typeof camRef.current !== 'undefined' &&
+    camRef.current !== null &&
+    camRef.current.video.readyState === 4
+  ) {
+    // Get video properties
+    const video = camRef.current.video;
+    const videoWidth = camRef.current.video.videoWidth;
+    const videoHeight = camRef.current.video.videoHeight;
+
+    // Set video dimensions
+    camRef.current.video.width = videoWidth;
+    camRef.current.video.height = videoHeight;
+
+    // Estimate poses from video frame
+    const poses = await model.estimatePoses(video);
+
+    // Validate pose data
+    if (
+      !poses ||
+      !poses[0] ||
+      !poses[0].keypoints ||
+      poses[0].keypoints.length < 3
+    )
+      return;
+
+    // Process pose and draw visualization
+    handlePose(poses);
+    drawCanvas(
+      poses,
+      video,
+      videoWidth,
+      videoHeight,
+      canvasRef,
+      GOOD_POSTURE_POSITION.current
+    );
+  }
+};
+```
+
+**Pipeline Steps**:
+1. Verify video is ready (`readyState === 4`)
+2. Extract video dimensions
+3. Run pose estimation on current video frame
+4. Validate that keypoints were detected
+5. Process pose data to determine posture quality
+6. Draw visual feedback on canvas overlay
+
+<Accordion title="What is readyState === 4?">
+  `readyState === 4` means the video has enough data to play. The ready states are:
+  - 0: HAVE_NOTHING - no information
+  - 1: HAVE_METADATA - duration and dimensions known
+  - 2: HAVE_CURRENT_DATA - current frame available
+  - 3: HAVE_FUTURE_DATA - enough data to play a little
+  - 4: HAVE_ENOUGH_DATA - enough data to play through
+</Accordion>
+
+### The `handlePose()` Function
+
+Analyzes detected keypoints and determines if posture is good or bad:
+
+```typescript
+const handlePose = async (poses: { keypoints: { y: number }[] }[]) => {
+  try {
+    // Track right eye position (keypoint index 2)
+    let rightEyePosition = poses[0].keypoints[2].y;
+    currentPosturePosition.current = rightEyePosition;
+
+    if (!rightEyePosition) return;
+
+    // Set baseline on first detection
+    if (GOOD_POSTURE_POSITION.current == null) {
+      handlePosture({ baseline: currentPosturePosition.current });
+    }
+
+    // Check if current position exceeds deviation threshold
+    if (
+      Math.abs(
+        currentPosturePosition.current - GOOD_POSTURE_POSITION.current
+      ) > GOOD_POSTURE_DEVIATION.current
+    ) {
+      handlePosture({ posture: 'bad' });
+    }
+
+    // Within acceptable range
+    if (
+      Math.abs(
+        currentPosturePosition.current - GOOD_POSTURE_POSITION.current
+      ) < GOOD_POSTURE_DEVIATION.current
+    ) {
+      handlePosture({ posture: 'good' });
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+```
+
+**Detection Logic**:
+- Uses **keypoint index 2** (right eye) for posture tracking
+- First detection sets the baseline "good posture" position
+- Calculates absolute difference between current and baseline position
+- Default deviation threshold: **25 pixels**
+- Sends posture status ('good' or 'bad') to background script
+
+<Note>
+  The right eye was chosen as the tracking point because it's reliably detected by MoveNet and provides a stable reference for head position. As users slouch, their head typically moves down, increasing the Y-coordinate of the eye position.
+</Note>
+
+## Posture Parameters
+
+### Baseline Position
+
+```typescript
+let GOOD_POSTURE_POSITION = useRef<any>(null);
+```
+
+- Stores the Y-coordinate of the right eye when tracking starts
+- Set automatically on first detection
+- Can be reset by clicking "Reset Posture" button
+- Persists until manually reset or page reload
+
+### Deviation Threshold
+
+```typescript
+let GOOD_POSTURE_DEVIATION = useRef(25);
+```
+
+- Default: **25 pixels**
+- Configurable via Popup component
+- Determines how much vertical movement is tolerated
+- Lower values = stricter posture requirements
+
+### Detection Rate
+
+```typescript
+const DETECTION_RATE = 100; // milliseconds
+```
+
+- Pose detection runs every **100ms** (10 FPS)
+- Balances responsiveness with performance
+- Constant, not configurable by users
+
+## Drawing Utilities
+
+### Canvas Rendering
+
+The `draw_utils.ts` module provides functions to visualize pose detection on a canvas overlay:
+
+<Tabs>
+  <Tab title="drawCanvas">
+    Main drawing function that orchestrates all visual elements:
+
+    ```typescript
+    export const drawCanvas = (
+      poses: { keypoints: any }[],
+      video: any,
+      videoWidth: any,
+      videoHeight: any,
+      canvas: any,
+      goodPostureBaseLine: any
+    ) => {
+      if (canvas.current == null) return;
+      const ctx = canvas.current.getContext('2d');
+
+      canvas.current.width = videoWidth;
+      canvas.current.height = videoHeight;
+
+      if (poses[0].keypoints != null) {
+        drawKeypoints(poses[0].keypoints, ctx, goodPostureBaseLine);
+        drawGoodPostureHeight(poses[0].keypoints, ctx, goodPostureBaseLine);
+      }
+    };
+    ```
+
+    Calls:
+    1. `drawKeypoints()` - Draw detected body points
+    2. `drawGoodPostureHeight()` - Draw baseline and current position lines
+  </Tab>
+
+  <Tab title="drawKeypoints">
+    Renders body keypoints with color-coded posture feedback:
+
+    ```typescript
+    export function drawKeypoints(
+      keypoints: any,
+      ctx: any,
+      currentGoodPostureHeight: any
+    ) {
+      const currentPostureHeight = keypoints[2].y;
+      const delta = currentPostureHeight - currentGoodPostureHeight;
+
+      const keypointInd = poseDetection.util.getKeypointIndexBySide(
+        poseDetection.SupportedModels.MoveNet
+      );
+
+      // Green for good posture, red for bad
+      ctx.fillStyle = 'rgba(0, 255, 0, 0.9)';
+      if (delta > 25 || delta < -25) {
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.9)';
+      }
+
+      // Draw middle, left, and right keypoints
+      for (const i of keypointInd.middle) {
+        drawKeypoint(keypoints[i], ctx);
+      }
+      for (const i of keypointInd.left) {
+        drawKeypoint(keypoints[i], ctx);
+      }
+      for (const i of keypointInd.right) {
+        drawKeypoint(keypoints[i], ctx);
+      }
+    }
+    ```
+
+    **Features**:
+    - Color changes based on posture deviation
+    - Green = good posture
+    - Red = deviation > 25 pixels
+    - Draws all detected keypoints as circles (4px radius)
+  </Tab>
+
+  <Tab title="drawGoodPostureHeight">
+    Visualizes baseline and current eye position with connecting rectangle:
+
+    ```typescript
+    export function drawGoodPostureHeight(
+      keypoints: any,
+      ctx: any,
+      currentGoodPostureHeight: number
+    ) {
+      const currentPostureHeight = keypoints[2].y;
+      const delta = currentPostureHeight - currentGoodPostureHeight;
+
+      // Draw baseline (good posture line)
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, currentGoodPostureHeight);
+      ctx.lineTo(600, currentGoodPostureHeight);
+      ctx.stroke();
+
+      // Draw current position line
+      ctx.beginPath();
+      ctx.moveTo(0, currentPostureHeight);
+      ctx.lineTo(800, currentPostureHeight);
+      ctx.stroke();
+
+      // Fill area between lines (green/red based on deviation)
+      ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
+      if (delta > 25 || delta < -25) {
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+      }
+      ctx.fillRect(0, currentGoodPostureHeight, 800, delta);
+    }
+    ```
+
+    **Visual Elements**:
+    - White horizontal line at baseline height
+    - White horizontal line at current eye height
+    - Semi-transparent rectangle connecting the lines
+    - Rectangle color indicates posture quality
+  </Tab>
+
+  <Tab title="drawSkeleton">
+    Optional skeleton rendering (currently commented out):
+
+    ```typescript
+    export function drawSkeleton(keypoints: any, poseId: any, ctx: any) {
+      const color = 'White';
+      ctx.fillStyle = color;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 4;
+
+      poseDetection.util
+        .getAdjacentPairs(poseDetection.SupportedModels.MoveNet)
+        .forEach(([i, j]) => {
+          const kp1 = keypoints[i];
+          const kp2 = keypoints[j];
+
+          const score1 = kp1.score != null ? kp1.score : 1;
+          const score2 = kp2.score != null ? kp2.score : 1;
+          const scoreThreshold = 0.3;
+
+          if (score1 >= scoreThreshold && score2 >= scoreThreshold) {
+            ctx.beginPath();
+            ctx.moveTo(kp1.x, kp1.y);
+            ctx.lineTo(kp2.x, kp2.y);
+            ctx.stroke();
+          }
+        });
+    }
+    ```
+
+    Draws lines connecting adjacent keypoints to show body structure.
+  </Tab>
+</Tabs>
+
+## MoveNet Keypoints
+
+MoveNet detects 17 keypoints with indices:
+
+```
+0: nose
+1: left_eye
+2: right_eye          ← Used for posture tracking
+3: left_ear
+4: right_ear
+5: left_shoulder
+6: right_shoulder
+7: left_elbow
+8: right_elbow
+9: left_wrist
+10: right_wrist
+11: left_hip
+12: right_hip
+13: left_knee
+14: right_knee
+15: left_ankle
+16: right_ankle
+```
+
+<Note>
+  Each keypoint includes `x`, `y` coordinates and a `score` (confidence value 0-1). Only keypoints with score >= 0.3 are considered reliable and drawn on the canvas.
+</Note>
+
+## Performance Considerations
+
+- **Model Size**: SINGLEPOSE_LIGHTNING is lightweight (~3MB)
+- **Detection Speed**: ~100ms per frame on modern hardware
+- **GPU Acceleration**: Uses WebGL backend for TensorFlow.js
+- **Resource Usage**: Minimal CPU when camera is off
+- **Battery Impact**: Moderate when tracking is active
+
+<Accordion title="Optimizing detection performance">
+  To improve performance:
+  - Use lower resolution webcam feed
+  - Increase `DETECTION_RATE` interval (e.g., 200ms instead of 100ms)
+  - Disable canvas drawing when not needed
+  - Use SINGLEPOSE_LIGHTNING instead of SINGLEPOSE_THUNDER model
+</Accordion>
